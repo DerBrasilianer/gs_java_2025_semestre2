@@ -1,3 +1,4 @@
+/* Base */
 html, body {
     height: 100%;
     margin: 0;
@@ -12,9 +13,11 @@ body {
     min-height: 100vh;
     position: relative;
     overflow-x: hidden;
+    overflow: hidden; /* evita barra dupla; o main terá o scroll */
+    box-sizing: border-box;
 }
 
-/* HEADER COMPACTO - mantém estrutura original, cores adaptadas */
+/* HEADER */
 .navbar {
     background-color: #005bbb;
     padding: 0.5rem 1rem;
@@ -83,7 +86,7 @@ body {
     background-color: rgba(0, 0, 0, 0.08);
 }
 
-/* FOOTER - cor azul escuro */
+/* FOOTER */
 footer {
     background-color: #003e80;
     color: #ffffff;
@@ -126,7 +129,7 @@ footer {
     background-color: rgba(204, 224, 255, 0.06);
 }
 
-/* Tooltip para mostrar os integrantes (mantive o conteúdo) */
+/* Tooltip para mostrar os integrantes */
 .group-info:hover::after {
     content: "Vinicius Prates Altafini - RM 559183\A Lucas Resende Lima - RM 556564\A Enzo Prado Soddano - RM 557937";
     white-space: pre;
@@ -146,7 +149,7 @@ footer {
     margin-bottom: 0.5rem;
 }
 
-/* ESTILOS PARA AS PÁGINAS MOBILE-LIKE - mantém estrutura mas com cores novas */
+/* Mobile-like containers */
 .mobile-style-container {
     min-height: calc(100vh - 120px);
     display: flex;
@@ -237,20 +240,27 @@ footer {
     margin-top: 0.5rem;
 }
 
+/* MAIN / HOME - adjusted for scroll and correct top visibility */
 .home-hero {
-    min-height: calc(100vh - 120px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f3f7fb;
-    text-align: center;
-    color: #233042;
-    padding: 20px;
+    /* scroll inside main, keep header/footer visible */
+    overflow-y: auto;
+    max-height: calc(100vh - 120px);
+    padding-top: 20px;
+    padding-bottom: 40px;
+    display: block; /* avoid vertical centering when content is long */
     box-sizing: border-box;
+    background-color: #f3f7fb;
     width: 100%;
-    flex-grow: 1;
 }
 
+.home-content {
+    margin: 0 auto;
+    max-width: 1100px;
+    padding: 0 1rem;
+    box-sizing: border-box;
+}
+
+/* logo */
 .home-logo {
     width: 160px;
     height: 160px;
@@ -273,7 +283,7 @@ footer {
     object-fit: contain;
 }
 
-/* Buttons: mantém classes originais e layout, apenas cores trocadas */
+/* Buttons */
 .home-button {
     background-color: #005bbb;
     color: #ffffff;
@@ -316,6 +326,7 @@ footer {
     text-decoration: none;
 }
 
+/* Forms and alerts */
 .error-alert {
     background-color: #ffe5e5;
     color: #a30000;
@@ -338,7 +349,7 @@ footer {
     box-sizing: border-box;
 }
 
-/* Estilos para select (mantendo aparência original) */
+/* Select appearance */
 select.mobile-input {
     appearance: none;
     background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23005bbb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
@@ -369,7 +380,7 @@ select.mobile-input option {
     width: 100%;
 }
 
-/* Password container - mantém layout */
+/* Password container */
 .password-container {
     position: relative;
     width: 100%;
@@ -413,7 +424,116 @@ select.mobile-input option {
     background-color: rgba(0,91,187,0.12);
 }
 
-/* RESPONSIVIDADE - mantém original */
+/* ---- Home page: readability and visual separation ---- */
+
+/* Intro paragraph width */
+.lead-centered {
+    max-width: 62ch;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+    font-size: 1.05rem;
+    color: #344454;
+}
+
+/* Wrapper for feature sections */
+.features-wrapper {
+    max-width: 1100px;
+    margin: 2rem auto 0 auto;
+    padding: 0 1rem;
+    box-sizing: border-box;
+}
+
+/* Row with three feature cards */
+.features-row {
+    display: flex;
+    gap: 1.25rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Individual feature card */
+.feature-card {
+    background: #ffffff;
+    border: 1px solid rgba(0,91,187,0.08);
+    border-radius: 12px;
+    padding: 1.25rem;
+    width: calc(33.333% - 0.8rem);
+    min-width: 240px;
+    box-shadow: 0 6px 20px rgba(0,91,187,0.04);
+    text-align: left;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.feature-card h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: #005bbb;
+    font-size: 1.15rem;
+}
+
+.feature-card p {
+    margin: 0;
+    color: #415365;
+    max-width: 40ch;
+    line-height: 1.55;
+}
+
+.feature-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(0,91,187,0.08);
+}
+
+/* Insights row: two wider cards */
+.insights-row {
+    display: flex;
+    gap: 1.25rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.insight-card {
+    background: #ffffff;
+    border-left: 4px solid #005bbb;
+    border-radius: 10px;
+    padding: 1.15rem;
+    width: calc(50% - 0.6rem);
+    min-width: 300px;
+    box-shadow: 0 6px 18px rgba(0,91,187,0.04);
+    text-align: left;
+}
+
+.insight-card h4 {
+    margin: 0 0 0.5rem 0;
+    color: #003e80;
+}
+
+.insight-card p {
+    margin: 0;
+    color: #3e4f5f;
+    max-width: 58ch;
+    line-height: 1.55;
+}
+
+/* Small helper hint below buttons */
+.hint-text {
+    color: #5d6b75;
+    max-width: 64ch;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ---- Responsiveness ---- */
+@media (max-width: 980px) {
+    .feature-card {
+        width: calc(50% - 0.8rem);
+    }
+    .insight-card {
+        width: 100%;
+    }
+}
+
 @media (max-width: 768px) {
     .navbar {
         flex-direction: column;
@@ -468,7 +588,18 @@ select.mobile-input option {
     }
 }
 
-/* CORREÇÃO EXTRA PARA ZOOM E TELAS MUITO PEQUENAS - mantém original */
+@media (max-width: 640px) {
+    .features-row {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .feature-card {
+        width: 100%;
+    }
+    .lead-centered { padding: 0 0.5rem; max-width: 70ch; }
+    .insights-row { flex-direction: column; gap: 1rem; }
+}
+
 @media (max-width: 480px) {
     .mobile-style-card {
         padding: 1rem;
@@ -499,20 +630,19 @@ select.mobile-input option {
     }
 }
 
-/* CORREÇÕES PARA ALTOS ZOOMS - mantém original */
 @media (min-width: 1200px) {
     .mobile-style-card {
         max-width: 560px;
     }
 }
 
-/* GARANTIR QUE FORMULÁRIOS NÃO QUEBREM COM ZOOM */
+/* Forms safety */
 form {
     max-width: 100%;
     box-sizing: border-box;
 }
 
-/* CORREÇÃO PARA O FLEX-GROW NAS PÁGINAS */
+/* Flex helper */
 .flex-grow-1 {
     flex-grow: 1;
     width: 100%;
@@ -522,137 +652,39 @@ form {
     min-height: 100vh;
 }
 
-/* -------- Home page: improve readability and visual separation -------- */
+/* Corrigir centralização dos botões na Home */
 
-/* Limit the width of the intro paragraph so lines are not too long */
-.lead-centered {
-    max-width: 62ch;
-    margin-left: auto;
-    margin-right: auto;
-    line-height: 1.6;
-    font-size: 1.05rem;
-    color: #344454;
-}
-
-/* Wrapper for feature sections */
-.features-wrapper {
-    max-width: 1100px;
-    margin: 2rem auto 0 auto;
-    padding: 0 1rem;
-    box-sizing: border-box;
-}
-
-/* Row with three feature cards */
-.features-row {
-    display: flex;
-    gap: 1.25rem;
-    justify-content: center;
+/* Normaliza os dois containers de botões para um flex container centralizado */
+.home-content .d-grid.gap-3.d-md-block,
+.home-content .text-center > .d-flex {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center;
+    gap: 1rem;
     flex-wrap: wrap;
+    margin-top: 0.5rem;
 }
 
-/* Individual feature card */
-.feature-card {
-    background: #ffffff;
-    border: 1px solid rgba(0,91,187,0.08);
-    border-radius: 12px;
-    padding: 1.25rem;
-    width: calc(33.333% - 0.8rem);
-    min-width: 240px;
-    box-shadow: 0 6px 20px rgba(0,91,187,0.04);
-    text-align: left;
-    transition: transform 0.12s ease, box-shadow 0.12s ease;
+/* Reduz margens laterais nos botões (evita deslocamento visual) */
+.home-content .home-button,
+.home-content .home-button-outline {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
 }
 
-.feature-card h3 {
-    margin-top: 0;
-    margin-bottom: 0.5rem;
-    color: #005bbb;
-    font-size: 1.15rem;
-}
-
-.feature-card p {
-    margin: 0;
-    color: #415365;
-    max-width: 40ch;
-    line-height: 1.55;
-}
-
-/* Hover slightly lifts card */
-.feature-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 30px rgba(0,91,187,0.08);
-}
-
-/* Insights row: two wider cards */
-.insights-row {
-    display: flex;
-    gap: 1.25rem;
-    justify-content: center;
-    margin-top: 1.5rem;
-    flex-wrap: wrap;
-}
-
-.insight-card {
-    background: #ffffff;
-    border-left: 4px solid #005bbb;
-    border-radius: 10px;
-    padding: 1.15rem;
-    width: calc(50% - 0.6rem);
-    min-width: 300px;
-    box-shadow: 0 6px 18px rgba(0,91,187,0.04);
-    text-align: left;
-}
-
-.insight-card h4 {
-    margin: 0 0 0.5rem 0;
-    color: #003e80;
-}
-
-.insight-card p {
-    margin: 0;
-    color: #3e4f5f;
-    max-width: 58ch;
-    line-height: 1.55;
-}
-
-/* Small helper hint below buttons */
-.hint-text {
-    color: #5d6b75;
-    max-width: 64ch;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-/* Responsiveness */
-@media (max-width: 980px) {
-    .feature-card {
-        width: calc(50% - 0.8rem);
-    }
-    .insight-card {
-        width: 100%;
-    }
-}
-
-@media (max-width: 640px) {
-    .features-row {
+/* Em telas pequenas, manter botões empilhados, centrados e com largura confortável */
+@media (max-width: 768px) {
+    .home-content .d-grid.gap-3.d-md-block,
+    .home-content .text-center > .d-flex {
         flex-direction: column;
-        gap: 1rem;
+        gap: 0.75rem;
     }
-    .feature-card {
-        width: 100%;
+
+    .home-content .home-button,
+    .home-content .home-button-outline {
+        width: 220px;
+        max-width: 90%;
+        margin-left: auto;
+        margin-right: auto;
     }
-    .lead-centered { padding: 0 0.5rem; max-width: 70ch; }
-    .insights-row { flex-direction: column; gap: 1rem; }
-}
-
-/* Permite rolagem no conteúdo quando ele ultrapassar a tela */
-.home-hero {
-    overflow-y: auto; /* habilita scroll somente no conteúdo principal */
-    max-height: calc(100vh - 120px); /* garante que não ultrapasse cabeçalho + rodapé */
-    padding-bottom: 40px; /* espaço para respirar antes do footer */
-}
-
-/* Importante: garantir que body não force tamanho maior que a tela */
-body {
-    overflow: hidden; /* evita duas barras de rolagem (body + main) */
 }
