@@ -6,73 +6,64 @@
 
 <main class="home-hero flex-grow-1">
     <div class="home-content">
+
         <div class="home-logo">
             <img th:src="@{/images/ltakn-logo.png}" alt="LT-AKN Logo" style="max-width: 100%; height: auto;">
         </div>
 
         <h1 class="fw-bold mb-3">Gestão LTAKN — Tecnologia para cuidar das pessoas</h1>
 
-        <p class="lead mb-4">
-            Nosso objetivo não é só organizar departamentos e horários — é usar tecnologia para proteger a saúde mental e física dos colaboradores.
-            Monitoramos indicadores, detectamos riscos de sobrecarga e fornecemos sinais para ação preventiva, com foco especial no bem-estar psicológico.
+        <p class="lead lead-centered mb-4">
+            Nosso objetivo vai além da operação: usamos tecnologia para proteger a saúde mental e física dos colaboradores.
+            A solução monitora indicadores de jornada e gera sinais proativos para reduzir estresse e prevenir burnout.
         </p>
 
-        <div class="content-container">
-            <div class="row g-4 mb-4">
-                <div class="col-md-4">
-                    <div class="details-card">
-                        <h3 class="mb-2" style="color:#005bbb;">Monitoramento Inteligente</h3>
-                        <p class="mb-0">Acompanhe horas trabalhadas, padrões de jornada e sinais de sobrecarga que podem afetar a saúde mental.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="details-card">
-                        <h3 class="mb-2" style="color:#005bbb;">Alertas proativos</h3>
-                        <p class="mb-0">Quando um colaborador ultrapassa limites saudáveis, o sistema sinaliza automaticamente para avaliações e ações de suporte.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="details-card">
-                        <h3 class="mb-2" style="color:#005bbb;">Apoio ao bem-estar</h3>
-                        <p class="mb-0">Ferramentas para priorizar intervenções e políticas que favoreçam recuperação e prevenção — com foco em reduzir estresse e burnout.</p>
-                    </div>
-                </div>
+        <div class="features-wrapper">
+
+            <div class="features-row">
+                <article class="feature-card">
+                    <h3>Monitoramento Inteligente</h3>
+                    <p>Acompanhamos horas trabalhadas e padrões de jornada para identificar sinais precoces de sobrecarga mental.</p>
+                </article>
+
+                <article class="feature-card">
+                    <h3>Alertas Proativos</h3>
+                    <p>Quando limites são ultrapassados, o sistema emite alertas para avaliação e ação, favorecendo intervenções rápidas.</p>
+                </article>
+
+                <article class="feature-card">
+                    <h3>Apoio ao Bem-Estar</h3>
+                    <p>Priorizamos medidas que promovam recuperação e prevenção: escalonamento de folgas, redistribuição de carga e suporte psicológico.</p>
+                </article>
             </div>
 
-            <div class="row g-4 mb-4">
-                <div class="col-md-6">
-                    <div class="page-header">
-                        <div>
-                            <h4 class="mb-1">Decisões baseadas em dados</h4>
-                            <p class="mb-0">Relatórios e painéis para gestores identificarem áreas críticas e planejarem mudanças de carga, férias e intervenções.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="page-header">
-                        <div>
-                            <h4 class="mb-1">Privacidade & Respeito</h4>
-                            <p class="mb-0">Dados são usados para proteção do time — com foco em anonimização e em ações coletivas sempre que possível.</p>
-                        </div>
-                    </div>
-                </div>
+            <div class="insights-row">
+                <section class="insight-card">
+                    <h4>Decisões baseadas em dados</h4>
+                    <p>Relatórios e painéis ajudam gestores a identificar áreas críticas e planejar férias, ajustes de escala e políticas de apoio.</p>
+                </section>
+
+                <section class="insight-card">
+                    <h4>Privacidade & Respeito</h4>
+                    <p>Os dados são tratados com foco em anonimização e ações coletivas sempre que possível — o objetivo é proteger o time, não punir.</p>
+                </section>
             </div>
+
         </div>
 
-        <!-- Conteúdo para usuários NÃO logados -->
-        <div sec:authorize="!isAuthenticated()" class="d-grid gap-3 d-md-block">
+        <div sec:authorize="!isAuthenticated()" class="d-grid gap-3 d-md-block mt-4">
             <a th:href="@{/login}" class="home-button btn btn-lg">Fazer Login</a>
             <a th:href="@{/register}" class="home-button-outline btn btn-lg">Criar Conta</a>
         </div>
 
-        <!-- Conteúdo para usuários logados -->
         <div sec:authorize="isAuthenticated()" class="text-center mt-4">
             <div class="d-flex gap-3 justify-content-center mb-3">
                 <a th:href="@{/departamentos}" class="home-button-outline btn btn-lg">Gerenciar Departamentos</a>
                 <a th:href="@{/funcionarios}" class="home-button-outline btn btn-lg">Gerenciar Funcionários</a>
             </div>
-            <p class="mt-2" style="color:#666;">Dica: acesse os relatórios para ver indicadores de risco e planejar intervenções de bem-estar.</p>
+            <p class="mt-2 hint-text">Dica: acesse os relatórios para ver indicadores de risco e planejar intervenções de bem-estar.</p>
         </div>
+
     </div>
 </main>
 
