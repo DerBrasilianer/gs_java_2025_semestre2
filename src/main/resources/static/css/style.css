@@ -5,8 +5,10 @@ html, body {
     font-family: Inter, sans-serif;
     background-color: #f3f7fb;
     color: #233042;
+    box-sizing: border-box;
 }
 
+/* Body layout */
 body {
     display: flex;
     flex-direction: column;
@@ -14,7 +16,6 @@ body {
     position: relative;
     overflow-x: hidden;
     overflow: hidden; /* evita barra dupla; o main terá o scroll */
-    box-sizing: border-box;
 }
 
 /* HEADER */
@@ -242,12 +243,11 @@ footer {
 
 /* MAIN / HOME - adjusted for scroll and correct top visibility */
 .home-hero {
-    /* scroll inside main, keep header/footer visible */
     overflow-y: auto;
     max-height: calc(100vh - 120px);
     padding-top: 20px;
     padding-bottom: 40px;
-    display: block; /* avoid vertical centering when content is long */
+    display: block;
     box-sizing: border-box;
     background-color: #f3f7fb;
     width: 100%;
@@ -380,53 +380,49 @@ select.mobile-input option {
     width: 100%;
 }
 
-/* Password container */
-.password-container {
-    position: relative;
+/* Password wrapper and toggle (new layout: button beside input) */
+.password-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     width: 100%;
     margin-bottom: 1rem;
-    box-sizing: border-box;
 }
 
 .password-field {
-    padding-right: 45px !important;
+    flex: 1;
+    border-radius: 8px;
+    padding: 12px;
+    box-sizing: border-box;
+    border: 1px solid #cbd5e1;
+    background-color: #fbfdff;
+    font-size: 1rem;
 }
 
 .password-toggle {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1.4rem;
-    padding: 0 12px;
-    border-radius: 4px;
-    transition: all 0.2s;
+    border: 1px solid rgba(0,91,187,0.12);
+    background: #ffffff;
     color: #005bbb;
-    font-weight: normal;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 24px;
-    line-height: 1;
-    margin-top: -2px;
-    box-sizing: border-box;
+    font-size: 0.95rem;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.12s, color 0.12s, transform 0.12s;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
 }
 
 .password-toggle:hover {
-    background-color: rgba(0,91,187,0.06);
+    background-color: #e8f6ff;
+    color: #003e80;
+    transform: translateY(-1px);
 }
 
-.password-toggle:focus {
-    outline: none;
-    background-color: rgba(0,91,187,0.12);
+.password-toggle:active {
+    transform: translateY(0);
 }
 
 /* ---- Home page: readability and visual separation ---- */
-
-/* Intro paragraph width */
 .lead-centered {
     max-width: 62ch;
     margin-left: auto;
@@ -586,6 +582,19 @@ select.mobile-input option {
         padding: 15px;
         min-height: calc(100vh - 100px);
     }
+
+    /* On small screens, place toggle under input to avoid cramped layout */
+    .password-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .password-toggle {
+        width: 140px;
+        margin-left: auto;
+        margin-right: auto;
+    }
 }
 
 @media (max-width: 640px) {
@@ -653,8 +662,6 @@ form {
 }
 
 /* Corrigir centralização dos botões na Home */
-
-/* Normaliza os dois containers de botões para um flex container centralizado */
 .home-content .d-grid.gap-3.d-md-block,
 .home-content .text-center > .d-flex {
     display: flex !important;
