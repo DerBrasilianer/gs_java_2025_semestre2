@@ -1,4 +1,4 @@
-package com.fiap.gestaofrota.controller;
+package com.fiap.gestaofrota.controller.departamento;
 
 import com.fiap.gestaofrota.dto.DepartamentoDTO;
 import com.fiap.gestaofrota.entity.DepartamentoEntity;

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="pt-BR">
-<head th:replace="layout :: mainHead('Lista de Departamentos')"></head>
+<head th:replace="~{layout :: mainHead('Lista de Departamentos')}"></head>
 
 <body>
 
-<div th:replace="layout :: mainHeader"></div>
+<div th:replace="~{layout :: mainHeader}"></div>
 
 <main class="container mt-4">
     <div class="text-center mb-4">
@@ -13,11 +13,19 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Departamentos</h2>
-        <!-- Novo departamento: visível para USER e ADMIN -->
         <a class="btn btn-primary" th:href="@{/departamentos/novo}" sec:authorize="hasAnyRole('USER','ADMIN')">Novo Departamento</a>
     </div>
 
-    <!-- Se lista for nula mostra mensagem; se existir e vazia mostra mensagem apropriada -->
+    <form th:action="@{/departamentos}" method="get" class="row g-3 mb-3 align-items-center">
+        <div class="col-md-6">
+            <input type="text" class="form-control" name="search" th:value="${search}" placeholder="Pesquisar por ID, nome ou horas máximas"/>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary" type="submit">Buscar</button>
+            <a th:href="@{/departamentos}" class="btn btn-outline-secondary ms-2">Limpar</a>
+        </div>
+    </form>
+
     <div th:if="${departamentos == null}">
         <div class="alert alert-warning">Lista de departamentos indisponível. Tente recarregar a página.</div>
     </div>
@@ -57,7 +65,7 @@
     </div>
 </main>
 
-<div th:replace="layout :: mainFooter"></div>
+<div th:replace="~{layout :: mainFooter}"></div>
 
 </body>
 </html>

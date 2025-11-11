@@ -22,11 +22,12 @@ public class FuncionarioService {
     }
 
     public Page<FuncionarioEntity> listarPorDepartamento(Long departamentoId, Pageable pageable) {
-        return repository.findByDepartamentoId(departamentoId, pageable);
+        return repository.findByDepartamento_Id(departamentoId, pageable);
     }
 
     public FuncionarioEntity buscarPorId(Long id) {
-        return repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Funcionário com id " + id + " não encontrado"));
+        return repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Funcionário com id " + id + " não encontrado"));
     }
 
     public FuncionarioEntity criar(FuncionarioEntity funcionario) {
@@ -35,11 +36,14 @@ public class FuncionarioService {
     }
 
     public FuncionarioEntity atualizar(Long id, FuncionarioEntity atualizado) {
-        FuncionarioEntity existente = repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Funcionário com id " + id + " não encontrado"));
+        FuncionarioEntity existente = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Funcionário com id " + id + " não encontrado"));
+
         existente.setNome(atualizado.getNome());
         existente.setDepartamento(atualizado.getDepartamento());
         existente.setHorasTrabalhadasUltimoMes(atualizado.getHorasTrabalhadasUltimoMes());
         existente.setStatus(computeStatus(existente));
+
         return repository.save(existente);
     }
 
@@ -47,14 +51,21 @@ public class FuncionarioService {
         repository.deleteById(id);
     }
 
+    /**
+     * Atualiza o status do funcionario automaticamente com base nas horas trabalhadas
+     * (SAUDAVEL ou EM_RISCO)
+     */
     private FuncionarioStatus computeStatus(FuncionarioEntity funcionario) {
         if (funcionario == null) return FuncionarioStatus.SAUDAVEL;
         if (funcionario.getDepartamento() == null) return FuncionarioStatus.SAUDAVEL;
+
         Integer maxHoras = funcionario.getDepartamento().getNumeroHorasMaximas();
         Integer trabalhadas = funcionario.getHorasTrabalhadasUltimoMes();
+
         if (maxHoras != null && trabalhadas != null && trabalhadas > maxHoras) {
             return FuncionarioStatus.EM_RISCO;
         }
+
         return FuncionarioStatus.SAUDAVEL;
     }
 

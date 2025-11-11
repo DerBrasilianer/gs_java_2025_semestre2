@@ -1,4 +1,4 @@
-package com.fiap.gestaofrota.controller;
+package com.fiap.gestaofrota.controller.register;
 
 import com.fiap.gestaofrota.dto.UserDTO;
 import com.fiap.gestaofrota.service.UserService;
