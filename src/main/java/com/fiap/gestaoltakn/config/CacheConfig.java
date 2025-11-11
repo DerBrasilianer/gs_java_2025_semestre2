@@ -1,4 +1,4 @@
-package com.fiap.gestaofrota.config;
+package com.fiap.gestaoltakn.config;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.cache.CacheManager;
