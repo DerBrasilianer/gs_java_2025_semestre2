@@ -24,48 +24,65 @@ public class CacheStatsController {
     public Map<String, Object> getCacheStats() {
         Map<String, Object> stats = new HashMap<>();
 
-        // Estatísticas do cache de departamentos
-        CaffeineCache departamentosCache = (CaffeineCache) cacheManager.getCache("departamentos");
-        if (departamentosCache != null) {
-            CacheStats departamentosStats = departamentosCache.getNativeCache().stats();
-            stats.put("departamentos", Map.of(
-                    "hitCount", departamentosStats.hitCount(),
-                    "missCount", departamentosStats.missCount(),
-                    "loadSuccessCount", departamentosStats.loadSuccessCount(),
-                    "loadFailureCount", departamentosStats.loadFailureCount(),
-                    "totalLoadTime", departamentosStats.totalLoadTime(),
-                    "evictionCount", departamentosStats.evictionCount(),
-                    "hitRate", departamentosStats.hitRate(),
-                    "missRate", departamentosStats.missRate()
-            ));
-        }
+        try {
+            // Estatísticas do cache de departamentos
+            CaffeineCache departamentosCache = (CaffeineCache) cacheManager.getCache("departamentos");
+            if (departamentosCache != null) {
+                CacheStats departamentosStats = departamentosCache.getNativeCache().stats();
+                stats.put("departamentos", Map.of(
+                        "hitCount", departamentosStats.hitCount(),
+                        "missCount", departamentosStats.missCount(),
+                        "loadSuccessCount", departamentosStats.loadSuccessCount(),
+                        "loadFailureCount", departamentosStats.loadFailureCount(),
+                        "totalLoadTime", departamentosStats.totalLoadTime(),
+                        "evictionCount", departamentosStats.evictionCount(),
+                        "hitRate", String.format("%.2f", departamentosStats.hitRate()),
+                        "missRate", String.format("%.2f", departamentosStats.missRate())
+                ));
+            }
 
-        // Estatísticas do cache de funcionários
-        CaffeineCache funcionariosCache = (CaffeineCache) cacheManager.getCache("funcionarios");
-        if (funcionariosCache != null) {
-            CacheStats funcionariosStats = funcionariosCache.getNativeCache().stats();
-            stats.put("funcionarios", Map.of(
-                    "hitCount", funcionariosStats.hitCount(),
-                    "missCount", funcionariosStats.missCount(),
-                    "loadSuccessCount", funcionariosStats.loadSuccessCount(),
-                    "loadFailureCount", funcionariosStats.loadFailureCount(),
-                    "totalLoadTime", funcionariosStats.totalLoadTime(),
-                    "evictionCount", funcionariosStats.evictionCount(),
-                    "hitRate", funcionariosStats.hitRate(),
-                    "missRate", funcionariosStats.missRate()
-            ));
+            // Estatísticas do cache de funcionários
+            CaffeineCache funcionariosCache = (CaffeineCache) cacheManager.getCache("funcionarios");
+            if (funcionariosCache != null) {
+                CacheStats funcionariosStats = funcionariosCache.getNativeCache().stats();
+                stats.put("funcionarios", Map.of(
+                        "hitCount", funcionariosStats.hitCount(),
+                        "missCount", funcionariosStats.missCount(),
+                        "loadSuccessCount", funcionariosStats.loadSuccessCount(),
+                        "loadFailureCount", funcionariosStats.loadFailureCount(),
+                        "totalLoadTime", funcionariosStats.totalLoadTime(),
+                        "evictionCount", funcionariosStats.evictionCount(),
+                        "hitRate", String.format("%.2f", funcionariosStats.hitRate()),
+                        "missRate", String.format("%.2f", funcionariosStats.missRate())
+                ));
+            }
+
+            stats.put("status", "success");
+            stats.put("message", "Cache statistics retrieved successfully");
+
+        } catch (Exception e) {
+            stats.put("status", "error");
+            stats.put("message", "Error retrieving cache stats: " + e.getMessage());
         }
 
         return stats;
     }
 
     @GetMapping("/clear")
-    public String clearAllCaches() {
-        cacheManager.getCacheNames().forEach(cacheName -> {
-            cacheManager.getCache(cacheName).clear();
-            System.out.println("🧹 Cache cleared: " + cacheName);
-        });
-        return "All caches cleared!";
+    public Map<String, String> clearAllCaches() {
+        Map<String, String> response = new HashMap<>();
+        try {
+            cacheManager.getCacheNames().forEach(cacheName -> {
+                cacheManager.getCache(cacheName).clear();
+                System.out.println("🧹 Cache cleared: " + cacheName);
+            });
+            response.put("status", "success");
+            response.put("message", "All caches cleared successfully!");
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", "Error clearing caches: " + e.getMessage());
+        }
+        return response;
     }
 
 }
