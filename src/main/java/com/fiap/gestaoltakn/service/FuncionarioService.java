@@ -24,12 +24,12 @@ public class FuncionarioService {
         this.repository = repository;
     }
 
-    @Cacheable(key = "'page:' + #pageable.pageNumber + ':' + #pageable.pageSize")
+    @Cacheable(key = "T(org.springframework.data.domain.PageRequest).class.isInstance(#pageable) ? 'page:' + #pageable.pageNumber + ':' + #pageable.pageSize : 'page:all'")
     public Page<FuncionarioEntity> listar(Pageable pageable) {
         return repository.findAll(pageable);
     }
 
-    @Cacheable(key = "'departamento:' + #departamentoId + ':page:' + #pageable.pageNumber + ':' + #pageable.pageSize")
+    @Cacheable(key = "T(org.springframework.data.domain.PageRequest).class.isInstance(#pageable) ? 'departamento:' + #departamentoId + ':page:' + #pageable.pageNumber + ':' + #pageable.pageSize : 'departamento:' + #departamentoId + ':page:all'")
     public Page<FuncionarioEntity> listarPorDepartamento(Long departamentoId, Pageable pageable) {
         return repository.findByDepartamento_Id(departamentoId, pageable);
     }
@@ -45,6 +45,8 @@ public class FuncionarioService {
             @CacheEvict(key = "'departamento:*'"),
             @CacheEvict(key = "'search:*'"),
             @CacheEvict(key = "'status:*'"),
+            @CacheEvict(key = "'horas:*'"),
+            @CacheEvict(key = "'departamentoNome:*'"),
             @CacheEvict(key = "#funcionario.id")
     })
     public FuncionarioEntity criar(FuncionarioEntity funcionario) {
@@ -57,6 +59,8 @@ public class FuncionarioService {
             @CacheEvict(key = "'departamento:*'"),
             @CacheEvict(key = "'search:*'"),
             @CacheEvict(key = "'status:*'"),
+            @CacheEvict(key = "'horas:*'"),
+            @CacheEvict(key = "'departamentoNome:*'"),
             @CacheEvict(key = "#id")
     })
     public FuncionarioEntity atualizar(Long id, FuncionarioEntity atualizado) {
@@ -76,6 +80,8 @@ public class FuncionarioService {
             @CacheEvict(key = "'departamento:*'"),
             @CacheEvict(key = "'search:*'"),
             @CacheEvict(key = "'status:*'"),
+            @CacheEvict(key = "'horas:*'"),
+            @CacheEvict(key = "'departamentoNome:*'"),
             @CacheEvict(key = "#id")
     })
     public void deletar(Long id) {

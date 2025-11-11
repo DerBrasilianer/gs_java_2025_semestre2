@@ -9,6 +9,9 @@ import com.fiap.gestaoltakn.mapper.FuncionarioMapper;
 import com.fiap.gestaoltakn.service.DepartamentoService;
 import com.fiap.gestaoltakn.service.FuncionarioService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -31,51 +34,78 @@ public class FuncionarioWebController {
     }
 
     @GetMapping
-    public String listar(@RequestParam(name = "search", required = false) String search, Model model) {
-        List<FuncionarioEntity> todos = funcionarioService.listar(org.springframework.data.domain.Pageable.unpaged()).getContent();
+    public String listar(@RequestParam(name = "search", required = false) String search,
+                         @RequestParam(name = "page", defaultValue = "0") int page,
+                         @RequestParam(name = "size", defaultValue = "10") int size,
+                         Model model) {
 
-        List<FuncionarioDTO> resultado;
+        Pageable pageable = PageRequest.of(page, size);
+        Page<FuncionarioEntity> pagina;
+
         if (search == null || search.trim().isEmpty()) {
-            resultado = todos.stream().map(FuncionarioMapper::toFuncionarioDTO).collect(Collectors.toList());
+            pagina = funcionarioService.listar(pageable);
         } else {
+            // Para busca, vamos usar uma lógica diferente - buscar todos e filtrar manualmente
+            // Isso não é ideal para grandes datasets, mas funciona para o exemplo
+            List<FuncionarioEntity> todos = funcionarioService.listar(Pageable.unpaged()).getContent();
+
             String q = search.trim();
             String qLower = q.toLowerCase(Locale.ROOT);
 
-            resultado = todos.stream()
-                    .filter(func -> {
-                        try {
-                            Long id = Long.parseLong(q);
-                            if (func.getId() != null && func.getId().equals(id)) return true;
-                        } catch (NumberFormatException ignored) {}
-
-                        try {
-                            Integer horas = Integer.valueOf(q);
-                            if (func.getHorasTrabalhadasUltimoMes() != null && func.getHorasTrabalhadasUltimoMes().equals(horas)) return true;
-                        } catch (NumberFormatException ignored) {}
-
-                        if (func.getStatus() != null) {
-                            String normalized = qLower.replaceAll("[\\s\\-]", "_").toUpperCase(Locale.ROOT);
-                            try {
-                                FuncionarioStatus s = FuncionarioStatus.valueOf(normalized);
-                                if (func.getStatus() == s) return true;
-                            } catch (IllegalArgumentException ignored) {}
-                            if (func.getStatus().name().toLowerCase(Locale.ROOT).contains(qLower.replaceAll("[_\\-]", ""))) return true;
-                        }
-
-                        if (func.getNome() != null && func.getNome().toLowerCase(Locale.ROOT).contains(qLower)) return true;
-
-                        if (func.getDepartamento() != null && func.getDepartamento().getNome() != null
-                                && func.getDepartamento().getNome().toLowerCase(Locale.ROOT).contains(qLower)) return true;
-
-                        return false;
-                    })
-                    .map(FuncionarioMapper::toFuncionarioDTO)
+            List<FuncionarioEntity> filtrados = todos.stream()
+                    .filter(func -> filtrarFuncionario(func, q, qLower))
                     .collect(Collectors.toList());
+
+            // Converter para página manualmente
+            int start = (int) pageable.getOffset();
+            int end = Math.min((start + pageable.getPageSize()), filtrados.size());
+            List<FuncionarioEntity> sublist = filtrados.subList(start, end);
+
+            pagina = new org.springframework.data.domain.PageImpl<>(
+                    sublist, pageable, filtrados.size()
+            );
         }
+
+        List<FuncionarioDTO> resultado = pagina.getContent().stream()
+                .map(FuncionarioMapper::toFuncionarioDTO)
+                .collect(Collectors.toList());
 
         model.addAttribute("funcionarios", resultado);
         model.addAttribute("search", search);
+        model.addAttribute("currentPage", pagina.getNumber());
+        model.addAttribute("totalPages", pagina.getTotalPages());
+        model.addAttribute("totalItems", pagina.getTotalElements());
+        model.addAttribute("pageSize", size);
+
         return "funcionarios/list";
+    }
+
+    private boolean filtrarFuncionario(FuncionarioEntity func, String q, String qLower) {
+        try {
+            Long id = Long.parseLong(q);
+            if (func.getId() != null && func.getId().equals(id)) return true;
+        } catch (NumberFormatException ignored) {}
+
+        try {
+            Integer horas = Integer.valueOf(q);
+            if (func.getHorasTrabalhadasUltimoMes() != null && func.getHorasTrabalhadasUltimoMes().equals(horas)) return true;
+        } catch (NumberFormatException ignored) {}
+
+        if (func.getStatus() != null) {
+            String normalized = qLower.replaceAll("[\\s\\-]", "_").toUpperCase(Locale.ROOT);
+            try {
+                FuncionarioStatus s = FuncionarioStatus.valueOf(normalized);
+                if (func.getStatus() == s) return true;
+            } catch (IllegalArgumentException ignored) {}
+            if (func.getStatus().name().toLowerCase(Locale.ROOT).contains(qLower.replaceAll("[_\\-]", ""))) return true;
+        }
+
+        if (func.getNome() != null && func.getNome().toLowerCase(Locale.ROOT).contains(qLower)) return true;
+
+        if (func.getDepartamento() != null && func.getDepartamento().getNome() != null
+                && func.getDepartamento().getNome().toLowerCase(Locale.ROOT).contains(qLower)) return true;
+
+        return false;
     }
 
     @GetMapping("/novo")
