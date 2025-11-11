@@ -25,7 +25,11 @@ public class CacheConfig {
                 .initialCapacity(100)
                 .maximumSize(500)
                 .expireAfterWrite(10, TimeUnit.MINUTES)
-                .recordStats();
+                .recordStats()
+                .evictionListener((key, value, cause) ->
+                        System.out.println("🗑️ Cache evicted - Key: " + key + ", Cause: " + cause))
+                .removalListener((key, value, cause) ->
+                        System.out.println("🔥 Cache removed - Key: " + key + ", Cause: " + cause));
     }
 
 }
