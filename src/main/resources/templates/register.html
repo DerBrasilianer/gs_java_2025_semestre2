@@ -36,7 +36,7 @@
             <label for="role" class="form-label mt-3">Tipo de Usuário</label>
             <select class="mobile-input" id="role" th:field="*{role}" required>
                 <option value="">Selecione</option>
-                <option th:each="role : ${T(com.fiap.gestaofrota.enums.Role).values()}"
+                <option th:each="role : ${T(com.fiap.gestaoltakn.enums.Role).values()}"
                         th:value="${role}"
                         th:text="${role.name() == 'USER' ? 'Usuário Normal' : 'Administrador'}">
                 </option>
