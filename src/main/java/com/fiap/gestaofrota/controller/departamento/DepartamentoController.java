@@ -5,10 +5,12 @@ import com.fiap.gestaofrota.entity.DepartamentoEntity;
 import com.fiap.gestaofrota.mapper.DepartamentoMapper;
 import com.fiap.gestaofrota.service.DepartamentoService;
 import jakarta.validation.Valid;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @RestController
@@ -23,13 +25,21 @@ public class DepartamentoController {
 
     @GetMapping
     public ResponseEntity<List<DepartamentoDTO>> listar() {
-        return ResponseEntity.ok(departamentoService.listarTodos().stream().map(DepartamentoMapper::toDepartamentoDTO).collect(Collectors.toList()));
+        List<DepartamentoDTO> departamentos = departamentoService.listarTodos().stream()
+                .map(DepartamentoMapper::toDepartamentoDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(10, TimeUnit.MINUTES))
+                .body(departamentos);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<DepartamentoDTO> buscar(@PathVariable Long id) {
         DepartamentoEntity encontrado = departamentoService.buscarPorId(id);
-        return ResponseEntity.ok(DepartamentoMapper.toDepartamentoDTO(encontrado));
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(10, TimeUnit.MINUTES))
+                .body(DepartamentoMapper.toDepartamentoDTO(encontrado));
     }
 
     @PostMapping

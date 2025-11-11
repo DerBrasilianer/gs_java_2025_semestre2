@@ -4,11 +4,18 @@ import com.fiap.gestaofrota.entity.FuncionarioEntity;
 import com.fiap.gestaofrota.enums.FuncionarioStatus;
 import com.fiap.gestaofrota.repository.FuncionarioRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
+@CacheConfig(cacheNames = "funcionarios")
 public class FuncionarioService {
 
     private final FuncionarioRepository repository;
@@ -17,24 +24,41 @@ public class FuncionarioService {
         this.repository = repository;
     }
 
+    @Cacheable(key = "'page:' + #pageable.pageNumber + ':' + #pageable.pageSize")
     public Page<FuncionarioEntity> listar(Pageable pageable) {
         return repository.findAll(pageable);
     }
 
+    @Cacheable(key = "'departamento:' + #departamentoId + ':page:' + #pageable.pageNumber + ':' + #pageable.pageSize")
     public Page<FuncionarioEntity> listarPorDepartamento(Long departamentoId, Pageable pageable) {
         return repository.findByDepartamento_Id(departamentoId, pageable);
     }
 
+    @Cacheable(key = "#id")
     public FuncionarioEntity buscarPorId(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Funcionário com id " + id + " não encontrado"));
     }
 
+    @Caching(evict = {
+            @CacheEvict(key = "'page:*'"),
+            @CacheEvict(key = "'departamento:*'"),
+            @CacheEvict(key = "'search:*'"),
+            @CacheEvict(key = "'status:*'"),
+            @CacheEvict(key = "#funcionario.id")
+    })
     public FuncionarioEntity criar(FuncionarioEntity funcionario) {
         funcionario.setStatus(computeStatus(funcionario));
         return repository.save(funcionario);
     }
 
+    @Caching(evict = {
+            @CacheEvict(key = "'page:*'"),
+            @CacheEvict(key = "'departamento:*'"),
+            @CacheEvict(key = "'search:*'"),
+            @CacheEvict(key = "'status:*'"),
+            @CacheEvict(key = "#id")
+    })
     public FuncionarioEntity atualizar(Long id, FuncionarioEntity atualizado) {
         FuncionarioEntity existente = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Funcionário com id " + id + " não encontrado"));
@@ -47,14 +71,37 @@ public class FuncionarioService {
         return repository.save(existente);
     }
 
+    @Caching(evict = {
+            @CacheEvict(key = "'page:*'"),
+            @CacheEvict(key = "'departamento:*'"),
+            @CacheEvict(key = "'search:*'"),
+            @CacheEvict(key = "'status:*'"),
+            @CacheEvict(key = "#id")
+    })
     public void deletar(Long id) {
         repository.deleteById(id);
     }
 
-    /**
-     * Atualiza o status do funcionario automaticamente com base nas horas trabalhadas
-     * (SAUDAVEL ou EM_RISCO)
-     */
+    @Cacheable(key = "'search:' + #nome")
+    public List<FuncionarioEntity> buscarPorNome(String nome) {
+        return repository.findByNomeContainingIgnoreCase(nome);
+    }
+
+    @Cacheable(key = "'departamentoNome:' + #departamentoNome")
+    public List<FuncionarioEntity> buscarPorDepartamentoNome(String departamentoNome) {
+        return repository.findByDepartamentoNomeContainingIgnoreCase(departamentoNome);
+    }
+
+    @Cacheable(key = "'horas:' + #horas")
+    public List<FuncionarioEntity> buscarPorHoras(Integer horas) {
+        return repository.findByHorasTrabalhadasUltimoMes(horas);
+    }
+
+    @Cacheable(key = "'status:' + #status.name()")
+    public List<FuncionarioEntity> buscarPorStatus(FuncionarioStatus status) {
+        return repository.findByStatus(status);
+    }
+
     private FuncionarioStatus computeStatus(FuncionarioEntity funcionario) {
         if (funcionario == null) return FuncionarioStatus.SAUDAVEL;
         if (funcionario.getDepartamento() == null) return FuncionarioStatus.SAUDAVEL;

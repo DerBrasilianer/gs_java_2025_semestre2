@@ -9,8 +9,11 @@ import com.fiap.gestaofrota.service.FuncionarioService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api/funcionarios")
@@ -25,15 +28,24 @@ public class FuncionarioController {
     }
 
     @GetMapping
-    public ResponseEntity<?> listar(Pageable pageable, @RequestParam(required = false) Long departamentoId) {
-        Page<FuncionarioEntity> page = (departamentoId == null) ? funcionarioService.listar(pageable) : funcionarioService.listarPorDepartamento(departamentoId, pageable);
-        return ResponseEntity.ok(page.map(FuncionarioMapper::toFuncionarioDTO));
+    public ResponseEntity<Page<FuncionarioDTO>> listar(Pageable pageable, @RequestParam(required = false) Long departamentoId) {
+        Page<FuncionarioEntity> page = (departamentoId == null) ?
+                funcionarioService.listar(pageable) :
+                funcionarioService.listarPorDepartamento(departamentoId, pageable);
+
+        Page<FuncionarioDTO> result = page.map(FuncionarioMapper::toFuncionarioDTO);
+
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(5, TimeUnit.MINUTES))
+                .body(result);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<FuncionarioDTO> buscar(@PathVariable Long id) {
         FuncionarioEntity encontrado = funcionarioService.buscarPorId(id);
-        return ResponseEntity.ok(FuncionarioMapper.toFuncionarioDTO(encontrado));
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(10, TimeUnit.MINUTES))
+                .body(FuncionarioMapper.toFuncionarioDTO(encontrado));
     }
 
     @PostMapping
