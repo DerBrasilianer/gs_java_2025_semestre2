@@ -74,7 +74,7 @@ public class CacheStatsController {
         try {
             cacheManager.getCacheNames().forEach(cacheName -> {
                 cacheManager.getCache(cacheName).clear();
-                System.out.println("🧹 Cache cleared: " + cacheName);
+                System.out.println("Cache cleared: " + cacheName);
             });
             response.put("status", "success");
             response.put("message", "All caches cleared successfully!");

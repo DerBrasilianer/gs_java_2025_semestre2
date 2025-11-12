@@ -9,9 +9,23 @@
     <div class="text-center mb-4">
         <img th:src="@{/images/ltakn-logo.png}" alt="LT-AKN Logo" style="max-width: 200px; height: auto;">
     </div>
+
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Funcionários</h2>
-        <a class="btn btn-primary" th:href="@{/funcionarios/novo}" sec:authorize="hasAnyRole('USER','ADMIN')">Novo Funcionário</a>
+        <div>
+            <form th:action="@{/relatorios/funcionarios-risco}" method="post" style="display: inline;" sec:authorize="isAuthenticated()">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn btn-warning me-2">
+                    📊 Gerar Relatório de Risco
+                </button>
+            </form>
+            <a class="btn btn-primary" th:href="@{/funcionarios/novo}" sec:authorize="hasAnyRole('USER','ADMIN')">Novo Funcionário</a>
+        </div>
     </div>
 
     <form th:action="@{/funcionarios}" method="get" class="row g-3 mb-3 align-items-center">
@@ -43,7 +57,13 @@
                 <td th:text="${func.nome != null ? func.nome : '-'}"></td>
                 <td th:text="${func.departamentoNome != null ? func.departamentoNome : '-'}"></td>
                 <td th:text="${func.horasTrabalhadasUltimoMes != null ? func.horasTrabalhadasUltimoMes : '-'}"></td>
-                <td th:text="${func.status != null && func.status.name() == 'SAUDAVEL' ? 'Saudável' : (func.status != null ? 'Em risco' : '-')}"></td>
+                <td>
+                    <span th:if="${func.status != null and func.status.name() == 'SAUDAVEL'}"
+                          class="badge bg-success">Saudável</span>
+                    <span th:if="${func.status != null and func.status.name() == 'EM_RISCO'}"
+                          class="badge bg-danger">Em risco</span>
+                    <span th:if="${func.status == null}" class="badge bg-secondary">-</span>
+                </td>
 
                 <td>
                     <a class="btn btn-sm btn-outline-primary"
@@ -65,6 +85,26 @@
             </tr>
             </tbody>
         </table>
+    </div>
+
+    <div th:if="${totalPages > 1}" class="d-flex justify-content-between align-items-center">
+        <div>
+            <span>Página <span th:text="${currentPage + 1}"></span> de <span th:text="${totalPages}"></span></span>
+            <span> - Total de <span th:text="${totalItems}"></span> funcionários</span>
+        </div>
+        <nav>
+            <ul class="pagination">
+                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                    <a class="page-link" th:href="@{/funcionarios(search=${search}, page=${currentPage - 1}, size=${pageSize})}">Anterior</a>
+                </li>
+                <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" class="page-item" th:classappend="${i == currentPage} ? 'active'">
+                    <a class="page-link" th:href="@{/funcionarios(search=${search}, page=${i}, size=${pageSize})}" th:text="${i + 1}"></a>
+                </li>
+                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                    <a class="page-link" th:href="@{/funcionarios(search=${search}, page=${currentPage + 1}, size=${pageSize})}">Próxima</a>
+                </li>
+            </ul>
+        </nav>
     </div>
 </main>
 

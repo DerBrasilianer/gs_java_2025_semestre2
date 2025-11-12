@@ -3,6 +3,7 @@ package com.fiap.gestaoltakn.service;
 import com.fiap.gestaoltakn.entity.FuncionarioEntity;
 import com.fiap.gestaoltakn.enums.FuncionarioStatus;
 import com.fiap.gestaoltakn.repository.FuncionarioRepository;
+import com.fiap.gestaoltakn.service.message.CacheSyncProducer;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -11,7 +12,6 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
@@ -19,17 +19,23 @@ import java.util.List;
 public class FuncionarioService {
 
     private final FuncionarioRepository repository;
+    private final CacheSyncProducer cacheSyncProducer;
 
-    public FuncionarioService(FuncionarioRepository repository) {
+    public FuncionarioService(FuncionarioRepository repository, CacheSyncProducer cacheSyncProducer) {
         this.repository = repository;
+        this.cacheSyncProducer = cacheSyncProducer;
     }
 
-    @Cacheable(key = "T(org.springframework.data.domain.PageRequest).class.isInstance(#pageable) ? 'page:' + #pageable.pageNumber + ':' + #pageable.pageSize : 'page:all'")
+    @Cacheable(key = "'page:' + #pageable.pageNumber + ':' + #pageable.pageSize")
     public Page<FuncionarioEntity> listar(Pageable pageable) {
         return repository.findAll(pageable);
     }
 
-    @Cacheable(key = "T(org.springframework.data.domain.PageRequest).class.isInstance(#pageable) ? 'departamento:' + #departamentoId + ':page:' + #pageable.pageNumber + ':' + #pageable.pageSize : 'departamento:' + #departamentoId + ':page:all'")
+    public List<FuncionarioEntity> listarTodos() {
+        return repository.findAll();
+    }
+
+    @Cacheable(key = "'departamento:' + #departamentoId + ':page:' + #pageable.pageNumber + ':' + #pageable.pageSize")
     public Page<FuncionarioEntity> listarPorDepartamento(Long departamentoId, Pageable pageable) {
         return repository.findByDepartamento_Id(departamentoId, pageable);
     }
@@ -41,27 +47,17 @@ public class FuncionarioService {
     }
 
     @Caching(evict = {
-            @CacheEvict(key = "'page:*'"),
-            @CacheEvict(key = "'departamento:*'"),
-            @CacheEvict(key = "'search:*'"),
-            @CacheEvict(key = "'status:*'"),
-            @CacheEvict(key = "'horas:*'"),
-            @CacheEvict(key = "'departamentoNome:*'"),
-            @CacheEvict(key = "#funcionario.id")
+            @CacheEvict(allEntries = true, cacheNames = "funcionarios")
     })
     public FuncionarioEntity criar(FuncionarioEntity funcionario) {
         funcionario.setStatus(computeStatus(funcionario));
-        return repository.save(funcionario);
+        FuncionarioEntity salvo = repository.save(funcionario);
+        cacheSyncProducer.enviarInvalidacaoFuncionario(salvo.getId());
+        return salvo;
     }
 
     @Caching(evict = {
-            @CacheEvict(key = "'page:*'"),
-            @CacheEvict(key = "'departamento:*'"),
-            @CacheEvict(key = "'search:*'"),
-            @CacheEvict(key = "'status:*'"),
-            @CacheEvict(key = "'horas:*'"),
-            @CacheEvict(key = "'departamentoNome:*'"),
-            @CacheEvict(key = "#id")
+            @CacheEvict(allEntries = true, cacheNames = "funcionarios")
     })
     public FuncionarioEntity atualizar(Long id, FuncionarioEntity atualizado) {
         FuncionarioEntity existente = repository.findById(id)
@@ -72,20 +68,17 @@ public class FuncionarioService {
         existente.setHorasTrabalhadasUltimoMes(atualizado.getHorasTrabalhadasUltimoMes());
         existente.setStatus(computeStatus(existente));
 
-        return repository.save(existente);
+        FuncionarioEntity salvo = repository.save(existente);
+        cacheSyncProducer.enviarInvalidacaoFuncionario(salvo.getId());
+        return salvo;
     }
 
     @Caching(evict = {
-            @CacheEvict(key = "'page:*'"),
-            @CacheEvict(key = "'departamento:*'"),
-            @CacheEvict(key = "'search:*'"),
-            @CacheEvict(key = "'status:*'"),
-            @CacheEvict(key = "'horas:*'"),
-            @CacheEvict(key = "'departamentoNome:*'"),
-            @CacheEvict(key = "#id")
+            @CacheEvict(allEntries = true, cacheNames = "funcionarios")
     })
     public void deletar(Long id) {
         repository.deleteById(id);
+        cacheSyncProducer.enviarInvalidacaoFuncionario(id);
     }
 
     @Cacheable(key = "'search:' + #nome")

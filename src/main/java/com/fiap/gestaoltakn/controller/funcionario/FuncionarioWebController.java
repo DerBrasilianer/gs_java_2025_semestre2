@@ -45,9 +45,7 @@ public class FuncionarioWebController {
         if (search == null || search.trim().isEmpty()) {
             pagina = funcionarioService.listar(pageable);
         } else {
-            // Para busca, vamos usar uma lógica diferente - buscar todos e filtrar manualmente
-            // Isso não é ideal para grandes datasets, mas funciona para o exemplo
-            List<FuncionarioEntity> todos = funcionarioService.listar(Pageable.unpaged()).getContent();
+            List<FuncionarioEntity> todos = funcionarioService.listarTodos();
 
             String q = search.trim();
             String qLower = q.toLowerCase(Locale.ROOT);
@@ -56,10 +54,10 @@ public class FuncionarioWebController {
                     .filter(func -> filtrarFuncionario(func, q, qLower))
                     .collect(Collectors.toList());
 
-            // Converter para página manualmente
             int start = (int) pageable.getOffset();
             int end = Math.min((start + pageable.getPageSize()), filtrados.size());
-            List<FuncionarioEntity> sublist = filtrados.subList(start, end);
+            List<FuncionarioEntity> sublist = start < filtrados.size() ?
+                    filtrados.subList(start, end) : List.of();
 
             pagina = new org.springframework.data.domain.PageImpl<>(
                     sublist, pageable, filtrados.size()
@@ -97,7 +95,12 @@ public class FuncionarioWebController {
                 FuncionarioStatus s = FuncionarioStatus.valueOf(normalized);
                 if (func.getStatus() == s) return true;
             } catch (IllegalArgumentException ignored) {}
-            if (func.getStatus().name().toLowerCase(Locale.ROOT).contains(qLower.replaceAll("[_\\-]", ""))) return true;
+
+            String statusLower = func.getStatus().name().toLowerCase(Locale.ROOT);
+            if (statusLower.contains(qLower.replaceAll("[_\\-]", ""))) return true;
+
+            if (qLower.equals("saudavel") && func.getStatus() == FuncionarioStatus.SAUDAVEL) return true;
+            if (qLower.equals("em risco") && func.getStatus() == FuncionarioStatus.EM_RISCO) return true;
         }
 
         if (func.getNome() != null && func.getNome().toLowerCase(Locale.ROOT).contains(qLower)) return true;

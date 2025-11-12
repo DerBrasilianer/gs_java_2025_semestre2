@@ -25,6 +25,7 @@
             <!-- Visível somente quando autenticado -->
             <li sec:authorize="isAuthenticated()"><a th:href="@{/departamentos}">Departamentos</a></li>
             <li sec:authorize="isAuthenticated()"><a th:href="@{/funcionarios}">Funcionários</a></li>
+            <li sec:authorize="isAuthenticated()"><a th:href="@{/teste-mensageiria}">Relatórios</a></li>
 
             <li sec:authorize="isAuthenticated()">
                 <!-- proteger _csrf: só renderiza o input se houver o token -->
