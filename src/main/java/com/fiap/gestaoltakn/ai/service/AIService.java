@@ -64,20 +64,16 @@ public class AIService {
                     "llama-3.1-8b-instant",
                     List.of(new OpenAIRequest.Message("user", prompt)),
                     0.7,
-                    null
+                    500
             );
 
             logger.info("Enviando requisição para Groq API... Modelo: {}", request.getModel());
-            logger.info("Request payload: model={}, temperature={}, max_tokens={}",
-                    request.getModel(), request.getTemperature(), request.getMaxTokens());
 
             OpenAIResponse response = openaiWebClient.post()
                     .uri("/chat/completions")
                     .bodyValue(request)
                     .retrieve()
                     .bodyToMono(OpenAIResponse.class)
-                    .doOnSuccess(r -> logger.info("Resposta recebida da API Groq"))
-                    .doOnError(e -> logger.error("Erro na chamada da API Groq: {}", e.getMessage()))
                     .block();
 
             if (response != null &&
@@ -88,22 +84,14 @@ public class AIService {
 
                 String resultado = response.getChoices().get(0).getMessage().getContent();
                 logger.info("Resposta da IA recebida com sucesso! Tamanho: {} caracteres", resultado.length());
-                logger.debug("Conteúdo da resposta: {}", resultado);
                 return resultado;
             } else {
                 logger.warn("Resposta vazia ou inválida da API Groq, usando análise mock");
-                if (response != null) {
-                    logger.warn("Estrutura da resposta: choices={}",
-                            response.getChoices() != null ? response.getChoices().size() : "null");
-                }
                 return gerarAnaliseMock(funcionario);
             }
 
-        } catch (WebClientResponseException e) {
-            logger.error("Erro HTTP {} na chamada da API Groq: {}", e.getStatusCode(), e.getResponseBodyAsString());
-            return "Erro na comunicação com o serviço de IA: " + e.getStatusCode() + " - " + e.getResponseBodyAsString();
         } catch (Exception e) {
-            logger.error("Erro inesperado ao analisar bem-estar do funcionário via IA: {}", e.getMessage(), e);
+            logger.error("Erro inesperado ao analisar bem-estar do funcionário via IA: {}", e.getMessage());
             return gerarAnaliseMock(funcionario);
         }
     }
@@ -141,24 +129,18 @@ public class AIService {
                     funcionariosEmRisco
             );
 
-            logger.info("Prompt departamento criado para: {}", nomeDepartamento);
-
             OpenAIRequest request = new OpenAIRequest(
                     "llama-3.1-8b-instant",
                     List.of(new OpenAIRequest.Message("user", prompt)),
                     0.7,
-                    null
+                    500
             );
-
-            logger.info("Enviando requisição para Groq API (departamento)... Modelo: {}", request.getModel());
 
             OpenAIResponse response = openaiWebClient.post()
                     .uri("/chat/completions")
                     .bodyValue(request)
                     .retrieve()
                     .bodyToMono(OpenAIResponse.class)
-                    .doOnSuccess(r -> logger.info("Resposta departamento recebida da API Groq"))
-                    .doOnError(e -> logger.error("Erro na chamada departamento da API Groq: {}", e.getMessage()))
                     .block();
 
             if (response != null &&
@@ -168,19 +150,80 @@ public class AIService {
                     response.getChoices().get(0).getMessage().getContent() != null) {
 
                 String resultado = response.getChoices().get(0).getMessage().getContent();
-                logger.info("Resposta da IA para departamento recebida com sucesso! Tamanho: {} caracteres", resultado.length());
                 return resultado;
             } else {
-                logger.warn("Resposta vazia ou inválida da API Groq para departamento, usando recomendações mock");
                 return gerarRecomendacoesMock(nomeDepartamento, horasMaximas, totalFuncionarios, funcionariosEmRisco);
             }
 
-        } catch (WebClientResponseException e) {
-            logger.error("Erro HTTP {} na chamada departamento da API Groq: {}", e.getStatusCode(), e.getResponseBodyAsString());
-            return "Erro na comunicação com o serviço de IA: " + e.getStatusCode() + " - " + e.getResponseBodyAsString();
         } catch (Exception e) {
-            logger.error("Erro inesperado ao gerar recomendações para departamento via IA: {}", e.getMessage(), e);
+            logger.error("Erro inesperado ao gerar recomendações para departamento via IA: {}", e.getMessage());
             return gerarRecomendacoesMock(nomeDepartamento, horasMaximas, totalFuncionarios, funcionariosEmRisco);
+        }
+    }
+
+    public String gerarResumoEquipe(long totalFuncionarios, long emRisco, long saudaveis) {
+        logger.info("Gerando resumo da equipe: total={}, emRisco={}, saudaveis={}",
+                totalFuncionarios, emRisco, saudaveis);
+
+        if (openaiApiKey == null || openaiApiKey.isEmpty()) {
+            logger.warn("API Key não configurada, usando resumo mock");
+            return gerarResumoEquipeMock(totalFuncionarios, emRisco, saudaveis);
+        }
+
+        try {
+            String prompt = String.format("""
+                Com base nos dados da equipe abaixo, forneça um resumo conciso e recomendações práticas:
+                
+                Estatísticas da Equipe:
+                - Total de funcionários: %d
+                - Funcionários saudáveis: %d
+                - Funcionários em situação de risco: %d
+                - Percentual em risco: %.1f%%
+                
+                Forneça:
+                1. Uma breve análise da situação geral da equipe
+                2. 3-4 recomendações prioritárias para gestão de bem-estar
+                3. Sugestões de ações preventivas
+                
+                Seja prático, objetivo e focado em ações implementáveis.
+                Use no máximo 250 palavras. Responda em português brasileiro.
+                """,
+                    totalFuncionarios,
+                    saudaveis,
+                    emRisco,
+                    totalFuncionarios > 0 ? (emRisco * 100.0 / totalFuncionarios) : 0
+            );
+
+            OpenAIRequest request = new OpenAIRequest(
+                    "llama-3.1-8b-instant",
+                    List.of(new OpenAIRequest.Message("user", prompt)),
+                    0.7,
+                    500
+            );
+
+            OpenAIResponse response = openaiWebClient.post()
+                    .uri("/chat/completions")
+                    .bodyValue(request)
+                    .retrieve()
+                    .bodyToMono(OpenAIResponse.class)
+                    .block();
+
+            if (response != null &&
+                    response.getChoices() != null &&
+                    !response.getChoices().isEmpty() &&
+                    response.getChoices().get(0).getMessage() != null &&
+                    response.getChoices().get(0).getMessage().getContent() != null) {
+
+                String resultado = response.getChoices().get(0).getMessage().getContent();
+                logger.info("Resumo da equipe recebido com sucesso! Tamanho: {} caracteres", resultado.length());
+                return resultado;
+            } else {
+                return gerarResumoEquipeMock(totalFuncionarios, emRisco, saudaveis);
+            }
+
+        } catch (Exception e) {
+            logger.error("Erro inesperado ao gerar resumo da equipe via IA: {}", e.getMessage());
+            return gerarResumoEquipeMock(totalFuncionarios, emRisco, saudaveis);
         }
     }
 
@@ -196,10 +239,6 @@ public class AIService {
             1. Monitorar carga de trabalho regularmente
             2. Considerar redistribuição de tarefas se necessário
             3. Promover pausas regulares durante a jornada
-            
-            **Para o Gestor:**
-            - Acompanhar indicadores de carga mensalmente
-            - Oferecer suporte quando horas ultrapassarem 80%% do limite
             """,
                 funcionario.getNome(),
                 funcionario.getHorasTrabalhadasUltimoMes(),
@@ -221,15 +260,35 @@ public class AIService {
             1. Revisar distribuição de tarefas entre a equipe
             2. Implementar sistema de rodízio para cargas pesadas
             3. Estabelecer políticas de descanso obrigatório
-            
-            **Prevenção:**
-            - Monitoramento proativo de horas extras
-            - Programas de qualidade de vida no trabalho
             """,
                 nomeDepartamento,
                 totalFuncionarios,
                 funcionariosEmRisco,
                 horasMaximas
+        );
+    }
+
+    private String gerarResumoEquipeMock(long totalFuncionarios, long emRisco, long saudaveis) {
+        return String.format("""
+            **Resumo da Equipe - Análise de Bem-Estar** [MOCK]
+            
+            **Situação Atual:**
+            - Total de funcionários: %d
+            - Em situação saudável: %d
+            - Em situação de risco: %d
+            - Taxa de risco: %.1f%%
+            
+            **Recomendações Prioritárias:**
+            1. Monitorar continuamente a carga de trabalho dos %d funcionários em risco
+            2. Implementar políticas de descanso obrigatório
+            3. Realizar check-ins regulares sobre bem-estar
+            4. Oferecer suporte psicológico preventivo
+            """,
+                totalFuncionarios,
+                saudaveis,
+                emRisco,
+                totalFuncionarios > 0 ? (emRisco * 100.0 / totalFuncionarios) : 0,
+                emRisco
         );
     }
 

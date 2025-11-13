@@ -7,6 +7,9 @@ import com.fiap.gestaoltakn.ai.service.AIService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/ai")
 public class AIController {
@@ -36,6 +39,36 @@ public class AIController {
 
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/resumo-equipe")
+    public ResponseEntity<Map<String, Object>> gerarResumoEquipe() {
+        try {
+            var todosFuncionarios = funcionarioService.listarTodos();
+            long totalFuncionarios = todosFuncionarios.size();
+            long emRisco = todosFuncionarios.stream()
+                    .filter(f -> f.getStatus() != null && f.getStatus().name().equals("EM_RISCO"))
+                    .count();
+            long saudaveis = totalFuncionarios - emRisco;
+
+            String resumo = aiService.gerarResumoEquipe(totalFuncionarios, emRisco, saudaveis);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("resumo", resumo);
+            response.put("totalFuncionarios", totalFuncionarios);
+            response.put("emRisco", emRisco);
+            response.put("saudaveis", saudaveis);
+            response.put("status", "success");
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("resumo", "Sistema de IA temporariamente indisponível. Entre em contato com o suporte.");
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return ResponseEntity.ok(response);
         }
     }
 
