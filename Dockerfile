@@ -23,7 +23,7 @@ ENV GROQ_API_URL=${GROQ_API_URL}
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
-RUN mvn -B -U clean package -DskipTests
+RUN mvn -B -U clean package
 
 FROM eclipse-temurin:17-jre
 WORKDIR /app
