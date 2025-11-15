@@ -1,3 +1,4 @@
+// SecurityConfig.java - ATUALIZAR
 package com.fiap.gestaoltakn.security;
 
 import org.springframework.context.annotation.Bean;
@@ -51,7 +52,13 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/home", "/login", "/register", "/api/register", "/css/**", "/images/**", "/js/**", "/api/cache/**").permitAll()
+                        .requestMatchers(
+                                "/", "/home",
+                                "/login", "/register", "/api/register",
+                                "/set-locale",
+                                "/css/**", "/images/**", "/js/**", "/api/cache/**",
+                                "/teste-mensageiria/**"
+                        ).permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated()
                 )
@@ -74,7 +81,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:8080", "http://localhost:8081", "http://localhost:8082",  "http://localhost:19006"));
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:8080",
+                "http://localhost:8081",
+                "http://localhost:8082",
+                "http://localhost:19006"
+        ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

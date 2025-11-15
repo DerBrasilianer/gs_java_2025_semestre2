@@ -87,6 +87,30 @@ body {
     background-color: rgba(0, 0, 0, 0.08);
 }
 
+/* Language Selector no menu */
+.navbar-menu .language-selector {
+    display: flex;
+    gap: 5px;
+    margin-left: auto;
+    align-items: center;
+}
+
+.navbar-menu .language-selector .lang-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.navbar-menu .language-selector .lang-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
 /* FOOTER */
 footer {
     background-color: #003e80;
@@ -520,6 +544,40 @@ select.mobile-input option {
     margin-right: auto;
 }
 
+/* Forms safety */
+form {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Flex helper */
+.flex-grow-1 {
+    flex-grow: 1;
+    width: 100%;
+}
+
+.min-vh-100 {
+    min-height: 100vh;
+}
+
+/* Corrigir centralização dos botões na Home */
+.home-content .d-grid.gap-3.d-md-block,
+.home-content .text-center > .d-flex {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+}
+
+/* Reduz margens laterais nos botões (evita deslocamento visual) */
+.home-content .home-button,
+.home-content .home-button-outline {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+}
+
 /* ---- Responsiveness ---- */
 @media (max-width: 980px) {
     .feature-card {
@@ -541,6 +599,13 @@ select.mobile-input option {
     .navbar-menu {
         gap: 0.5rem;
         flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .navbar-menu .language-selector {
+        margin: 0.5rem auto;
+        order: 3;
+        width: 100%;
         justify-content: center;
     }
 
@@ -595,6 +660,20 @@ select.mobile-input option {
         margin-left: auto;
         margin-right: auto;
     }
+
+    .home-content .d-grid.gap-3.d-md-block,
+    .home-content .text-center > .d-flex {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .home-content .home-button,
+    .home-content .home-button-outline {
+        width: 220px;
+        max-width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+    }
 }
 
 @media (max-width: 640px) {
@@ -645,53 +724,24 @@ select.mobile-input option {
     }
 }
 
-/* Forms safety */
-form {
-    max-width: 100%;
-    box-sizing: border-box;
+.language-selector {
+    margin-left: auto;
 }
 
-/* Flex helper */
-.flex-grow-1 {
-    flex-grow: 1;
-    width: 100%;
+.language-selector .btn-group {
+    margin-left: 10px;
 }
 
-.min-vh-100 {
-    min-height: 100vh;
+.language-selector .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
 }
 
-/* Corrigir centralização dos botões na Home */
-.home-content .d-grid.gap-3.d-md-block,
-.home-content .text-center > .d-flex {
-    display: flex !important;
-    justify-content: center !important;
+.navbar-menu {
+    display: flex;
     align-items: center;
     gap: 1rem;
-    flex-wrap: wrap;
-    margin-top: 0.5rem;
-}
-
-/* Reduz margens laterais nos botões (evita deslocamento visual) */
-.home-content .home-button,
-.home-content .home-button-outline {
-    margin-left: 0.5rem;
-    margin-right: 0.5rem;
-}
-
-/* Em telas pequenas, manter botões empilhados, centrados e com largura confortável */
-@media (max-width: 768px) {
-    .home-content .d-grid.gap-3.d-md-block,
-    .home-content .text-center > .d-flex {
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .home-content .home-button,
-    .home-content .home-button-outline {
-        width: 220px;
-        max-width: 90%;
-        margin-left: auto;
-        margin-right: auto;
-    }
+    list-style: none;
+    margin: 0;
+    padding: 0;
 }

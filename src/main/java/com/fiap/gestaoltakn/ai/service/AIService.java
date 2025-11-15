@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Service
@@ -22,14 +23,29 @@ public class AIService {
     @Value("${openai.api.key:}")
     private String openaiApiKey;
 
+    @Value("${openai.api.url:}")
+    private String openaiApiUrl;
+
     public AIService(WebClient openaiWebClient) {
         this.openaiWebClient = openaiWebClient;
+    }
+
+    @PostConstruct
+    public void init() {
+        logger.info("=== CONFIGURAÇÃO GROQ AI ===");
+        logger.info("API URL: {}", openaiApiUrl);
+        logger.info("API Key configurada: {}", openaiApiKey != null && !openaiApiKey.isEmpty());
+        logger.info("============================");
     }
 
     public String analisarBemEstarFuncionario(FuncionarioEntity funcionario) {
         logger.info("Iniciando análise de bem-estar para funcionário: {}", funcionario.getNome());
 
-        if (openaiApiKey == null || openaiApiKey.isEmpty()) {
+        boolean apiKeyConfigurada = openaiApiKey != null && !openaiApiKey.isEmpty();
+        logger.debug("API Key configurada: {}", apiKeyConfigurada);
+        logger.debug("API URL: {}", openaiApiUrl);
+
+        if (!apiKeyConfigurada) {
             logger.warn("API Key não configurada, usando análise mock");
             return gerarAnaliseMock(funcionario);
         }
@@ -58,7 +74,7 @@ public class AIService {
                     funcionario.getStatus().name()
             );
 
-            logger.info("Prompt criado para funcionário: {}", funcionario.getNome());
+            logger.info("Enviando requisição para Groq API...");
 
             OpenAIRequest request = new OpenAIRequest(
                     "llama-3.1-8b-instant",
@@ -66,8 +82,6 @@ public class AIService {
                     0.7,
                     500
             );
-
-            logger.info("Enviando requisição para Groq API... Modelo: {}", request.getModel());
 
             OpenAIResponse response = openaiWebClient.post()
                     .uri("/chat/completions")
@@ -90,6 +104,9 @@ public class AIService {
                 return gerarAnaliseMock(funcionario);
             }
 
+        } catch (WebClientResponseException e) {
+            logger.error("Erro HTTP na chamada da API: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
+            return gerarAnaliseMock(funcionario);
         } catch (Exception e) {
             logger.error("Erro inesperado ao analisar bem-estar do funcionário via IA: {}", e.getMessage());
             return gerarAnaliseMock(funcionario);
@@ -100,7 +117,8 @@ public class AIService {
                                                  Long totalFuncionarios, Long funcionariosEmRisco) {
         logger.info("Gerando recomendações para departamento: {}", nomeDepartamento);
 
-        if (openaiApiKey == null || openaiApiKey.isEmpty()) {
+        boolean apiKeyConfigurada = openaiApiKey != null && !openaiApiKey.isEmpty();
+        if (!apiKeyConfigurada) {
             logger.warn("API Key não configurada, usando recomendações mock");
             return gerarRecomendacoesMock(nomeDepartamento, horasMaximas, totalFuncionarios, funcionariosEmRisco);
         }
@@ -165,7 +183,8 @@ public class AIService {
         logger.info("Gerando resumo da equipe: total={}, emRisco={}, saudaveis={}",
                 totalFuncionarios, emRisco, saudaveis);
 
-        if (openaiApiKey == null || openaiApiKey.isEmpty()) {
+        boolean apiKeyConfigurada = openaiApiKey != null && !openaiApiKey.isEmpty();
+        if (!apiKeyConfigurada) {
             logger.warn("API Key não configurada, usando resumo mock");
             return gerarResumoEquipeMock(totalFuncionarios, emRisco, saudaveis);
         }

@@ -3,7 +3,7 @@
 <head th:fragment="mainHead(pageTitle)">
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title th:text="${pageTitle} + ' - Gestão LTAKN'">Gestão LTAKN</title>
+    <title th:text="${pageTitle} + ' - ' + #{app.title}">Gestão LTAKN</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -16,23 +16,36 @@
 <div th:fragment="mainHeader">
     <nav class="navbar">
         <div class="navbar-logo">
-            <a th:href="@{/}">Home</a>
+            <a th:href="@{/}" th:text="#{home.link}">Home</a>
         </div>
         <ul class="navbar-menu">
-            <li sec:authorize="!isAuthenticated()"><a th:href="@{/login}">Login</a></li>
-            <li sec:authorize="!isAuthenticated()"><a th:href="@{/register}">Cadastro</a></li>
+            <li sec:authorize="!isAuthenticated()"><a th:href="@{/login}" th:text="#{app.nav.login}">Login</a></li>
+            <li sec:authorize="!isAuthenticated()"><a th:href="@{/register}" th:text="#{app.nav.register}">Cadastro</a></li>
 
-            <!-- Visível somente quando autenticado -->
-            <li sec:authorize="isAuthenticated()"><a th:href="@{/departamentos}">Departamentos</a></li>
-            <li sec:authorize="isAuthenticated()"><a th:href="@{/funcionarios}">Funcionários</a></li>
-            <li sec:authorize="isAuthenticated()"><a th:href="@{/teste-mensageiria}">Relatórios</a></li>
+            <li sec:authorize="isAuthenticated()"><a th:href="@{/departamentos}" th:text="#{app.departamentos.title}">Departamentos</a></li>
+            <li sec:authorize="isAuthenticated()"><a th:href="@{/funcionarios}" th:text="#{app.funcionarios.title}">Funcionários</a></li>
+            <li sec:authorize="isAuthenticated()"><a th:href="@{/teste-mensageiria}" th:text="#{test.report.header}">Relatórios</a></li>
 
             <li sec:authorize="isAuthenticated()">
-                <!-- proteger _csrf: só renderiza o input se houver o token -->
                 <form th:action="@{/logout}" method="post" style="display:inline;">
                     <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                    <button type="submit" class="logout-btn">Logout</button>
+                    <button type="submit" class="logout-btn" th:text="#{app.nav.logout}">Logout</button>
                 </form>
+            </li>
+
+            <li class="language-selector">
+                <div class="btn-group">
+                    <a th:href="@{/set-locale(lang='pt')}"
+                       class="btn btn-sm btn-outline-secondary"
+                       th:classappend="${#locale.language == 'pt'} ? 'active'">
+                        PT
+                    </a>
+                    <a th:href="@{/set-locale(lang='en')}"
+                       class="btn btn-sm btn-outline-secondary"
+                       th:classappend="${#locale.language == 'en'} ? 'active'">
+                        EN
+                    </a>
+                </div>
             </li>
         </ul>
     </nav>
@@ -40,9 +53,9 @@
 
 <footer th:fragment="mainFooter">
     <div class="footer-content">
-        <p class="copyright">&copy; 2025 - Gestão LTAKN</p>
+        <p class="copyright">&copy; 2025 - <span th:text="#{app.title}">Gestão LTAKN</span></p>
         <div class="group-info">
-            <span class="group-name">Grupo LTAKN</span>
+            <span class="group-name" th:text="#{group.name}">Grupo LTAKN</span>
         </div>
     </div>
 </footer>

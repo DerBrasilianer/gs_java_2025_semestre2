@@ -1,60 +1,62 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="pt-BR">
-<head th:replace="layout :: mainHead('Login')"></head>
+<head th:replace="~{layout :: mainHead(#{app.login.title})}"></head>
 <body class="d-flex flex-column min-vh-100">
 
-<div th:replace="layout :: mainHeader"></div>
+<div th:replace="~{layout :: mainHeader}"></div>
 
 <main class="mobile-style-container flex-grow-1">
     <div class="mobile-style-card">
 
         <div class="mobile-logo">
-            <img th:src="@{/images/ltakn-logo.png}" alt="LT-AKN Logo">
+            <img th:src="@{/images/ltakn-logo.png}" th:alt="#{app.logo.alt}">
         </div>
 
-        <h2 class="fw-bold mb-4">Acesso ao Sistema</h2>
+        <h2 class="fw-bold mb-4" th:text="#{app.login.title}">Acesso ao Sistema</h2>
 
-        <div th:if="${param.error}" class="error-alert">
-            Usuário ou senha inválidos. Tente novamente.
-        </div>
+        <div th:if="${param.error}" class="error-alert" th:text="#{app.login.error}">Usuário ou senha inválidos. Tente novamente.</div>
 
         <form th:action="@{/login}" method="post">
 
             <input type="text" class="mobile-input" id="username" name="username"
-                   placeholder="Usuário" required>
+                   th:placeholder="#{app.login.username}" required>
 
             <div class="password-wrapper">
                 <input type="password" class="mobile-input" id="password" name="password"
-                       placeholder="Senha" required>
+                       th:placeholder="#{app.login.password}" required>
 
                 <button type="button" class="password-toggle-btn"
-                        onclick="togglePassword('password', this)">
-                    Mostrar
-                </button>
+                        onclick="togglePassword('password', this)"
+                        th:data-show="#{password.show}"
+                        th:data-hide="#{password.hide}"
+                        th:text="#{password.show}">Mostrar</button>
             </div>
 
-            <button type="submit" class="mobile-primary-button">Entrar</button>
+            <button type="submit" class="mobile-primary-button" th:text="#{app.login.button}">Entrar</button>
         </form>
 
         <p class="mt-4">
-            Não tem uma conta?
-            <a th:href="@{/register}" class="mobile-link">Cadastre-se!</a>
+            <span th:text="#{login.noAccount}">Não tem uma conta?</span>
+            <a th:href="@{/register}" class="mobile-link" th:text="#{app.nav.register}">Cadastre-se!</a>
         </p>
 
     </div>
 </main>
 
-<div th:replace="layout :: mainFooter"></div>
+<div th:replace="~{layout :: mainFooter}"></div>
 
 <script>
     function togglePassword(fieldId, btn) {
         const field = document.getElementById(fieldId);
+        const showText = btn.getAttribute('data-show');
+        const hideText = btn.getAttribute('data-hide');
+
         if (field.type === "password") {
             field.type = "text";
-            btn.textContent = "Esconder";
+            btn.textContent = hideText;
         } else {
             field.type = "password";
-            btn.textContent = "Mostrar";
+            btn.textContent = showText;
         }
     }
 </script>

@@ -3,6 +3,8 @@ package com.fiap.gestaoltakn.controller.register;
 import com.fiap.gestaoltakn.dto.UserDTO;
 import com.fiap.gestaoltakn.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -14,9 +16,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class RegisterController {
 
     private final UserService userService;
+    private final MessageSource messageSource;
 
-    public RegisterController(UserService userService) {
+    public RegisterController(UserService userService, MessageSource messageSource) {
         this.userService = userService;
+        this.messageSource = messageSource;
     }
 
     @GetMapping("/register")
@@ -35,17 +39,18 @@ public class RegisterController {
         }
 
         if (userService.existsByUsername(userDTO.getUsername())) {
-            result.rejectValue("username", "error.userDTO", "Nome de usuário já existe");
+            result.rejectValue("username", "error.userDTO",
+                    messageSource.getMessage("app.validation.username.exists", null, LocaleContextHolder.getLocale()));
             return "register";
         }
 
-        // Se role não for selecionada, definir como USER por padrão
         if (userDTO.getRole() == null) {
             userDTO.setRole(com.fiap.gestaoltakn.enums.Role.USER);
         }
 
         userService.registerNewUser(userDTO);
-        model.addAttribute("successMessage", "Cadastro realizado com sucesso! Faça login.");
+        model.addAttribute("successMessage",
+                messageSource.getMessage("app.register.success", null, LocaleContextHolder.getLocale()));
 
         return "login";
     }

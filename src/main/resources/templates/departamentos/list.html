@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="pt-BR">
-<head th:replace="~{layout :: mainHead('Lista de Departamentos')}"></head>
+<head th:replace="~{layout :: mainHead(#{app.departamentos.title})}"></head>
 
 <body>
 
@@ -8,41 +8,51 @@
 
 <main class="container mt-4">
     <div class="text-center mb-4">
-        <img th:src="@{/images/ltakn-logo.png}" alt="LT-AKN Logo" style="max-width: 200px; height: auto;">
+        <img th:src="@{/images/ltakn-logo.png}" th:alt="#{app.logo.alt}" style="max-width: 200px; height: auto;">
+    </div>
+
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" th:aria-label="#{aria.close}"></button>
+    </div>
+
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" th:aria-label="#{aria.close}"></button>
     </div>
 
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>Departamentos</h2>
-        <a class="btn btn-primary" th:href="@{/departamentos/novo}" sec:authorize="hasAnyRole('USER','ADMIN')">Novo Departamento</a>
+        <h2 th:text="#{app.departamentos.title}">Departamentos</h2>
+        <a class="btn btn-primary" th:href="@{/departamentos/novo}" sec:authorize="hasAnyRole('USER','ADMIN')" th:text="#{department.new}">Novo Departamento</a>
     </div>
 
     <form th:action="@{/departamentos}" method="get" class="row g-3 mb-3 align-items-center">
         <div class="col-md-6">
-            <input type="text" class="form-control" name="search" th:value="${search}" placeholder="Pesquisar por ID, nome ou horas máximas"/>
+            <input type="text" class="form-control" name="search" th:value="${search}" th:placeholder="#{departments.search.placeholder}"/>
         </div>
         <div class="col-md-2">
-            <button class="btn btn-primary" type="submit">Buscar</button>
-            <a th:href="@{/departamentos}" class="btn btn-outline-secondary ms-2">Limpar</a>
+            <button class="btn btn-primary" type="submit" th:text="#{table.search.button}">Buscar</button>
+            <a th:href="@{/departamentos}" class="btn btn-outline-secondary ms-2" th:text="#{table.clear}">Limpar</a>
         </div>
     </form>
 
     <div th:if="${departamentos == null}">
-        <div class="alert alert-warning">Lista de departamentos indisponível. Tente recarregar a página.</div>
+        <div class="alert alert-warning" th:text="#{departments.unavailable}">Lista de departamentos indisponível. Tente recarregar a página.</div>
     </div>
 
     <div th:if="${departamentos != null}">
         <div th:if="${#lists.isEmpty(departamentos)}">
-            <div class="alert alert-info">Nenhum departamento encontrado.</div>
+            <div class="alert alert-info" th:text="#{departments.none}">Nenhum departamento encontrado.</div>
         </div>
 
         <div th:if="${!#lists.isEmpty(departamentos)}">
             <table class="table table-striped">
                 <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Nome</th>
-                    <th>Horas máximas</th>
-                    <th>Ações</th>
+                    <th th:text="#{table.id}">ID</th>
+                    <th th:text="#{table.name}">Nome</th>
+                    <th th:text="#{departments.hours.max}">Horas máximas</th>
+                    <th th:text="#{table.actions}">Ações</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -51,11 +61,11 @@
                     <td th:text="${dep.nome}">Nome</td>
                     <td th:text="${dep.numeroHorasMaximas}">0</td>
                     <td>
-                        <a class="btn btn-sm btn-outline-primary" th:href="@{'/departamentos/' + ${dep.id} + '/editar'}" sec:authorize="hasRole('ADMIN')">Editar</a>
+                        <a class="btn btn-sm btn-outline-primary" th:href="@{'/departamentos/' + ${dep.id} + '/editar'}" sec:authorize="hasRole('ADMIN')" th:text="#{department.edit}">Editar</a>
 
                         <form th:action="@{'/departamentos/' + ${dep.id} + '/deletar'}" method="post" style="display:inline;" sec:authorize="hasRole('ADMIN')">
                             <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                            <button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('Tem certeza que deseja deletar este departamento?');">Excluir</button>
+                            <button class="btn btn-danger btn-sm" type="submit" th:onclick="|return confirm('#{confirm.delete.dep}');|" th:text="#{department.delete}">Excluir</button>
                         </form>
                     </td>
                 </tr>
