@@ -5,7 +5,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
-@ActiveProfiles("test") // usa application-test.properties
+@ActiveProfiles("test")
 class GestaoLtaknApplicationTests {
 
 	@Test

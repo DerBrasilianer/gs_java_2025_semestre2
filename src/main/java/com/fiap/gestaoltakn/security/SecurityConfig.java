@@ -1,4 +1,3 @@
-// SecurityConfig.java - ATUALIZAR
 package com.fiap.gestaoltakn.security;
 
 import org.springframework.context.annotation.Bean;

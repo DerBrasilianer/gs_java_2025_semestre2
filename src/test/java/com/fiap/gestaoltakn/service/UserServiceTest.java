@@ -32,7 +32,6 @@ class UserServiceTest {
 
     @BeforeEach
     void setup() {
-
         MockitoAnnotations.openMocks(this);
 
         userDTO = new UserDTO();
@@ -50,31 +49,26 @@ class UserServiceTest {
 
     @Test
     void deveRetornarTrueQuandoUsuarioExistir() {
-
         when(userRepository.findByUsername("admin")).thenReturn(Optional.of(userEntity));
 
         boolean existe = userService.existsByUsername("admin");
 
         assertTrue(existe);
         verify(userRepository, times(1)).findByUsername("admin");
-
     }
 
     @Test
     void deveRetornarFalseQuandoUsuarioNaoExistir() {
-
         when(userRepository.findByUsername("user")).thenReturn(Optional.empty());
 
         boolean existe = userService.existsByUsername("user");
 
         assertFalse(existe);
         verify(userRepository, times(1)).findByUsername("user");
-
     }
 
     @Test
     void deveRegistrarNovoUsuarioComRolePadraoUserQuandoNaoInformada() {
-
         userDTO.setRole(null);
         when(passwordEncoder.encode("123456")).thenReturn("encodedPassword");
         when(userRepository.save(any(UserEntity.class))).thenAnswer(invocation -> {
@@ -91,12 +85,10 @@ class UserServiceTest {
         assertEquals(Role.USER, salvo.getRole());
         verify(passwordEncoder, times(1)).encode("123456");
         verify(userRepository, times(1)).save(any(UserEntity.class));
-
     }
 
     @Test
     void deveRegistrarNovoUsuarioComRoleInformada() {
-
         when(passwordEncoder.encode("123456")).thenReturn("encodedPassword");
         when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
 
@@ -108,7 +100,6 @@ class UserServiceTest {
         assertEquals("encodedPassword", salvo.getPassword());
         verify(passwordEncoder, times(1)).encode("123456");
         verify(userRepository, times(1)).save(any(UserEntity.class));
-
     }
 
 }

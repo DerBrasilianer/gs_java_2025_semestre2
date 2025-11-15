@@ -101,7 +101,7 @@ public class FuncionarioService {
         return repository.findByStatus(status);
     }
 
-    private FuncionarioStatus computeStatus(FuncionarioEntity funcionario) {
+    FuncionarioStatus computeStatus(FuncionarioEntity funcionario) {
         if (funcionario == null) return FuncionarioStatus.SAUDAVEL;
         if (funcionario.getDepartamento() == null) return FuncionarioStatus.SAUDAVEL;
 
