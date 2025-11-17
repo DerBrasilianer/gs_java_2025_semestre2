@@ -376,8 +376,7 @@ Role: ADMIN
 
 ## 🎥 Demonstração
 
-### 🎬 Vídeo Demonstrativo
-[Link para o vídeo de demonstração das funcionalidades]
+### 🎬 [Link do Vídeo Demonstrativo](https://youtu.be/J8p2kkqr_eM)
 
 ---
 
