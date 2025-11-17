@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="pt-BR">
-<head th:replace="layout :: mainHead(#{employee.form.title})"></head>
+<head th:replace="~{layout :: mainHead(#{employee.form.title})}"></head>
 
 <body>
 
-<div th:replace="layout :: mainHeader"></div>
+<div th:replace="~{layout :: mainHeader}"></div>
 <div class="container mt-4">
     <div class="text-center mb-4">
         <img th:src="@{/images/ltakn-logo.png}" th:alt="#{app.logo.alt}" style="max-width: 200px; height: auto;">
@@ -48,14 +48,14 @@
 
         <div class="mb-3" th:if="${funcionario != null and funcionario.id != null}">
             <label class="form-label" th:text="#{field.status}">Status atual</label>
-            <input type="text" class="form-control" th:value="${funcionario.status != null ? (funcionario.status.name() == 'SAUDAVEL' ? #{status.healthy} : #{status.risk}) : '-'}" readonly/>
+            <input type="text" class="form-control" th:value="${funcionario.status != null ? (funcionario.status.name() == 'SAUDAVEL' ? 'Saudável' : 'Em risco') : '-'}" readonly/>
         </div>
 
         <button class="btn btn-primary" type="submit" th:text="#{employee.save}">Salvar</button>
         <a class="btn btn-secondary" th:href="@{/funcionarios}" th:text="#{employee.cancel}">Cancelar</a>
     </form>
 </div>
-<div th:replace="layout :: mainFooter"></div>
+<div th:replace="~{layout :: mainFooter}"></div>
 
 </body>
 </html>
