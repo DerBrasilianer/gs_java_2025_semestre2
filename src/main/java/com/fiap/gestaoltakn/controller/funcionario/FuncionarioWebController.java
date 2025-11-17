@@ -8,6 +8,7 @@ import com.fiap.gestaoltakn.mapper.DepartamentoMapper;
 import com.fiap.gestaoltakn.mapper.FuncionarioMapper;
 import com.fiap.gestaoltakn.service.DepartamentoService;
 import com.fiap.gestaoltakn.service.FuncionarioService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -125,29 +126,44 @@ public class FuncionarioWebController {
             model.addAttribute("departamentos", departamentoService.listarTodos().stream().map(DepartamentoMapper::toDepartamentoDTO).collect(Collectors.toList()));
             return "funcionarios/form";
         }
-        var departamento = departamentoService.buscarPorId(funcionarioDto.getDepartamentoId());
-        FuncionarioEntity entity = FuncionarioMapper.toFuncionarioEntity(funcionarioDto, departamento);
-        if (funcionarioDto.getId() == null) {
-            funcionarioService.criar(entity);
-        } else {
-            funcionarioService.atualizar(funcionarioDto.getId(), entity);
+
+        try {
+            var departamento = departamentoService.buscarPorId(funcionarioDto.getDepartamentoId());
+            FuncionarioEntity entity = FuncionarioMapper.toFuncionarioEntity(funcionarioDto, departamento);
+            if (funcionarioDto.getId() == null) {
+                funcionarioService.criar(entity);
+            } else {
+                funcionarioService.atualizar(funcionarioDto.getId(), entity);
+            }
+            return "redirect:/funcionarios";
+        } catch (EntityNotFoundException e) {
+            model.addAttribute("errorMessage", "Departamento não encontrado");
+            model.addAttribute("departamentos", departamentoService.listarTodos().stream().map(DepartamentoMapper::toDepartamentoDTO).collect(Collectors.toList()));
+            return "funcionarios/form";
         }
-        return "redirect:/funcionarios";
     }
 
     @GetMapping("/{id}/editar")
     public String editar(@PathVariable Long id, Model model) {
-        FuncionarioEntity entity = funcionarioService.buscarPorId(id);
-        FuncionarioDTO dto = FuncionarioMapper.toFuncionarioDTO(entity);
-        model.addAttribute("funcionario", dto);
-        model.addAttribute("departamentos", departamentoService.listarTodos().stream().map(DepartamentoMapper::toDepartamentoDTO).collect(Collectors.toList()));
-        return "funcionarios/form";
+        try {
+            FuncionarioEntity entity = funcionarioService.buscarPorId(id);
+            FuncionarioDTO dto = FuncionarioMapper.toFuncionarioDTO(entity);
+            model.addAttribute("funcionario", dto);
+            model.addAttribute("departamentos", departamentoService.listarTodos().stream().map(DepartamentoMapper::toDepartamentoDTO).collect(Collectors.toList()));
+            return "funcionarios/form";
+        } catch (EntityNotFoundException e) {
+            return "redirect:/funcionarios?error=Funcionário não encontrado";
+        }
     }
 
     @PostMapping("/{id}/deletar")
     public String deletar(@PathVariable Long id) {
-        funcionarioService.deletar(id);
-        return "redirect:/funcionarios";
+        try {
+            funcionarioService.deletar(id);
+            return "redirect:/funcionarios";
+        } catch (EntityNotFoundException e) {
+            return "redirect:/funcionarios?error=Funcionário não encontrado";
+        }
     }
 
 }
