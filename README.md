@@ -381,4 +381,35 @@ Role: ADMIN
 
 ---
 
+## 📸 Prints de tela
+
+* Home Pública
+  ![home](src/main/resources/static/prints/home_nao_logado.png)
+
+* Formulário de Cadastro
+  ![register](src/main/resources/static/prints/cadastro.png)
+
+* Formulário de Login
+  ![register](src/main/resources/static/prints/login.png)
+
+* Home de Usuários Logados
+  ![home](src/main/resources/static/prints/home_logado.png)
+
+* Listagem de Departamentos
+  ![patios-list](src/main/resources/static/prints/departamentos_list.png)
+
+* Cadastro de Departamentos
+  ![patios-form](src/main/resources/static/prints/departamentos_form.png)
+
+* Listagem de Funcionários
+  ![patios-list](src/main/resources/static/prints/funcionarios_list.png)
+
+* Cadastro de Funcionários
+  ![patios-form](src/main/resources/static/prints/funcionarios_form.png)
+
+* Central de Relátorios RabbitMQ
+  ![telemetri-list](src/main/resources/static/prints/relatorios_rabbitmq.png)
+
+---
+
 **LTAKN Care - Tecnologia para cuidar das pessoas** ♥️
